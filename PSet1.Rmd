@@ -1,0 +1,113 @@
+---
+title: "Problem Set 1"
+author: 
+date: 
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# this prevents package loading message from appearing in the rendered version of your problem set
+knitr::opts_chunk$set(warning = FALSE,
+                      message = FALSE)
+```
+
+Note: Grading is based both on your graphs and verbal explanations. Follow all best practices as discussed in class, including choosing appropriate parameters for all graphs. *Do not expect the assignment questions to spell out precisely how the graphs should be drawn. Sometimes guidance will be provided, but the absense of guidance does not mean that all choices are ok.*
+
+Read *Graphical Data Analysis with R*, Ch. 3
+
+### 1. Fast Food
+
+[6 points]
+
+Data: *fastfood* in **openintro** package
+
+a)  Draw multiple horizontal boxplots of `calories`, by `restaurant`. What do you observe?
+
+```{r}
+
+library("openintro")
+library("tidyverse")
+ggplot(fastfood, aes(x = restaurant, y = calories)) + 
+  geom_boxplot(orientation = "x")+
+  coord_flip()
+
+```
+
+b)  Draw histograms, faceted by `restaurant`, for the same data. Describe one insight that was not visible in the boxplots.
+
+```{r}
+
+ggplot(fastfood, aes(x=calories)) +
+  geom_histogram(bins = 10) +
+  facet_wrap(. ~ restaurant)
+
+```
+
+
+
+c) Do crispy items have more calories than grilled items? Create a new variable, `cooktype` that is "Crispy" if the item name contains "Crispy" and "Grilled" if it contains "Grilled". (Leave out any items that contain both or neither.) Hint: useful functions: `filter()`, `str_detect()`, `xor()`. Next plot overlapping density curves of `calories`, one curve for Crispy and one curve for Grilled, on a single set of axes. Each curve should be a different color. What do you observe?
+
+```{r}
+
+fastfood_cooktype <- fastfood %>%
+  mutate(cooktype = case_when(
+    str_detect(unlist(fastfood["item"]), "Crispy") ~ "Crispy",
+    str_detect(unlist(fastfood["item"]), "Grilled") ~ "Grilled"
+  ))
+
+ggplot(filter(fastfood_cooktype, !is.na(cooktype)), aes(x=calories, colour=cooktype)) +
+  geom_density()
+
+```
+
+### 2. Temporal Lobes
+
+[4 points]
+
+Data: *mtl* in **openintro** package
+
+a)  Draw two histograms--one with base R and the other with **ggplot2**--of the variable representing the thickness of the subiculum subregion of the medial temporal lobe without setting any parameters. What is the default method each uses to determine the number of bins? (For base R, show the calculation.) Which do you think is a better choice for this dataset and why?
+
+b) Draw two histograms of the `age` variable with boundaries at multiples of 5, one right closed and one right open. Every boundary should be labeled (45, 50, 55, etc.)
+
+c)  Adjust parameters--the same for both--so that the right open and right closed versions become identical. Explain your strategy. 
+
+
+### 3. Soybeans
+
+[8 points]
+
+Data: *australia.soybean* in **agridat** package
+
+a)  Use QQ (quantile-quantile) plots with theoretical normal lines to compare `yield` for the four locations (`loc`). For which location does the `yield` appear to be closest to a normal distribution?
+
+
+b)  Draw density histograms with density curves and theoretical normal curves overlaid of `yield` for the four locations.
+
+c)  Perform Shapiro-Wilk tests for normality for `yield` for each location using the `shapiro.test()` function and interpret the results.
+
+
+d)  Did all of the methods for testing for normality (a, b, and c) produce the same results? Briefly explain.
+
+
+### 4. Doctors
+
+[4 points]
+
+Data: *breslow* dataset in **boot** package
+
+Draw two histograms of the number of deaths attributed to coronary artery disease among doctors in the *breslow* dataset, one for smokers and one for non-smokers. )Hint: read the help file `?breslow` to understand the data.)
+
+### 5. Loans
+
+[8 points]
+
+Data: *loans_full_schema* in **openintro** package
+
+a) Use appropriate techniques to describe the distribution of the `loan_amount` variable noting interesting features.
+
+b) Create horizontal boxplots of `loan_amount`, one for each level of `loan_purpose`.
+
+c) Create ridgeline plots (package **ggridges**) for the same data as in b).
+
+d)  Compare b) and c). Which do you think is more effective for this data and why?
