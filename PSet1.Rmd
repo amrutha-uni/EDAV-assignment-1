@@ -68,9 +68,41 @@ Data: *mtl* in **openintro** package
 
 a)  Draw two histograms--one with base R and the other with **ggplot2**--of the variable representing the thickness of the subiculum subregion of the medial temporal lobe without setting any parameters. What is the default method each uses to determine the number of bins? (For base R, show the calculation.) Which do you think is a better choice for this dataset and why?
 
+```{r}
+
+subiculum_thickness_base_r <- as.numeric(unlist(mtl["asubic"]))
+hist(subiculum_thickness_base_r)
+
+
+ggplot(mtl, aes(x=asubic)) + geom_histogram()
+
+```
+
+Provide explanation on break points for each and reason out which is better - https://planspace.org/20141225-how_does_r_calculate_histogram_break_points/
+
 b) Draw two histograms of the `age` variable with boundaries at multiples of 5, one right closed and one right open. Every boundary should be labeled (45, 50, 55, etc.)
 
+
+```{r}
+ggplot(mtl, mapping = aes(x=age)) + 
+  geom_histogram(binwidth = 5, boundary = 40, closed = c("left")) 
+
+ggplot(mtl, mapping = aes(x=age)) + 
+  geom_histogram(binwidth = 5, boundary = 40, closed = c("right")) 
+
+```
+
+Get the borders fixed
+
 c)  Adjust parameters--the same for both--so that the right open and right closed versions become identical. Explain your strategy. 
+
+```{r}
+ggplot(mtl, mapping = aes(x=age)) + 
+  geom_histogram(binwidth = 5, boundary = 40.5, closed = c("left")) 
+
+ggplot(mtl, mapping = aes(x=age)) + 
+  geom_histogram(binwidth = 5, boundary = 40.5, closed = c("right")) 
+```
 
 
 ### 3. Soybeans
