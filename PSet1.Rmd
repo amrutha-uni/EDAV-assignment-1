@@ -11,7 +11,7 @@ knitr::opts_chunk$set(warning = FALSE,
                       message = FALSE)
 ```
 
-Note: Grading is based both on your graphs and verbal explanations. Follow all best practices as discussed in class, including choosing appropriate parameters for all graphs. *Do not expect the assignment questions to spell out precisely how the graphs should be drawn. Sometimes guidance will be provided, but the absense of guidance does not mean that all choices are ok.*
+Note: Grading is based both on your graphs and verbal explanations. Follow all best practices as discussed in class, including choosing appropriate parameters for all graphs. *Do not expect the assignment questions to spell out precisely how the graphs should be drawn. Sometimes guidance will be provided, but the absence of guidance does not mean that all choices are OK.*
 
 Read *Graphical Data Analysis with R*, Ch. 3
 
@@ -40,7 +40,8 @@ a)  Draw multiple horizontal boxplots of `calories`, by `restaurant`. What do yo
 
 ggplot(fastfood, aes(x = restaurant, y = calories)) + 
   geom_boxplot(orientation = "x", outlier.color = "red", outlier.size = 1.75)+
-  coord_flip()
+  coord_flip() +
+  ggtitle('Boxplot of calories across various restaurants')
 
 ```
 
@@ -57,10 +58,12 @@ b)  Draw histograms, faceted by `restaurant`, for the same data. Describe one in
 
 ggplot(fastfood, aes(x=calories)) +
   geom_histogram(bins = 10) +
-  facet_wrap(~ restaurant, ncol = 4, as.table = T, scales = "free")
+  facet_wrap(~ restaurant, ncol = 4, as.table = T, scales = "free") +
+  ggtitle('Calorie distribution of food items across various restaurants')
 
 ```
-#### Insights obtained - 
+
+#### Insights
 
 * Histograms are more intuitive to know the distribution of data in comparison with boxplots. Its easier to figure out whether the calories in different restaurants are symmetric or left/right skewed from histograms. Specific Insight - From the given data Arbys restaurant has the most normal distribution of calories of food items whereas McDonalds is likely to the most right skewed distribution.
 * Histogram gives a count of food items that lie within a given calorie range for a restaurant whereas this information is not available from the corresponding boxplot. 
@@ -71,20 +74,24 @@ c) Do crispy items have more calories than grilled items? Create a new variable,
 
 ```{r}
 
+# Create a new column in the dataframe
 fastfood_cooktype <- fastfood %>%
   mutate(cooktype = case_when(
     str_detect(unlist(fastfood["item"]), regex("Crispy", ignore_case = T)) ~ "Crispy",
     str_detect(unlist(fastfood["item"]), regex("Grilled", ignore_case = T)) ~ "Grilled"
   ))
 
+# Plot the density curve for the two variants in a single plot
 ggplot(filter(fastfood_cooktype, !is.na(cooktype)), aes(x=calories, colour=cooktype)) +
-  geom_density()
+  geom_density() +
+  ggtitle('Density plot of Crispy vs Grilled items')
 
 ```
 
 #### Observation 
 
-The density is inversely related to calories for Grilled items while directly proportional for Crispy items barring the outliers. The general trend observed for Grilled items is that, as the calorie count increases after a certain point, the number of food items in that range comes down, whereas for Crispy items, the number of food items increases until it hits a peak with increase in the calorie count and then drops down to accomodate the outliers. Inference - Crispy items tend to have more calories than grilled items.
+* The density is inversely related to calories for Grilled items while directly proportional for Crispy items barring the outliers. The general trend observed for Grilled items is that, as the calorie count increases after a certain point, the number of food items in that range comes down, whereas for Crispy items, the number of food items increases until it hits a peak with increase in the calorie count and then drops down to accomodate the outliers. 
+* Inference - Crispy items tend to have more calories than grilled items.
 
 ### 2. Temporal Lobes
 
@@ -97,14 +104,16 @@ a)  Draw two histograms--one with base R and the other with **ggplot2**--of the 
 ```{r}
 
 subiculum_thickness_base_r <- as.numeric(unlist(mtl["asubic"]))
-hist(subiculum_thickness_base_r)
 
+# Plotting in base R
+hist(subiculum_thickness_base_r, main = 'Distribution of thickness of subiculum subregion in base R')
 
-ggplot(mtl, aes(x=asubic)) + geom_histogram()
+# Plotting using ggplot2
+ggplot(mtl, aes(x=asubic)) + geom_histogram() + ggtitle('Distribution of thickness of subiculum subregion of medial temporal lobe in ggplot2')
 
 ```
 
-#### Default calculation of number of bins in base R
+##### Default calculation of number of bins in base R
 
 By default, inside of hist a two-stage process will decide the break points used to calculate a histogram:
 
@@ -116,11 +125,11 @@ By default, inside of hist a two-stage process will decide the break points used
 
   - Calc: Implementation of pretty function is abstracted from the user.             But we know the split is chosen such that the they are 1, 2 or 5           times the power of 10. Base R boxplot shows bin width of size 5.           The value 6 from the above calculation is closest to 5*pow(10, 0)           = 5. Hence we can assume that the pretty function of R                     implemented in C has chosen to multiply 5 with 0th power of 10             and we get a bin width of size 5.
 
-#### Default calculation of number of bins in ggplot2
+##### Default calculation of number of bins in ggplot2
 
 The default value set for the number of bins in ggplot2 is 30 irrespective of the data range.
 
-##### Inference
+###### Inference
 
 For the dataset under observation, the age is distributed over a range of 40 to 80 approximately which is a pretty small number. It is important to take into account the range of the dataset as default bin size of 30 will be too granular and defeats the purpose of a histogram. Therefore, the base R calculation of binsize is more suitable for our case as it takes into account the range of our dataset and finds the optimal bin size by nearly equally distributing the bins over the range.
 
@@ -128,19 +137,30 @@ b) Draw two histograms of the `age` variable with boundaries at multiples of 5, 
 
 
 ```{r}
-hist(mtl$age, breaks=seq(min(mtl$age)-1, max(mtl$age) + 1, 5), right=T, main = 'Right closed distribution of Age')
-hist(mtl$age, breaks=seq(min(mtl$age)-1, max(mtl$age) + 1, 5), right=F, main = 'Left closed distribution of Age') 
+# Using integer bin borders with right closed intervals
+
+hist(mtl$age, breaks=seq(min(mtl$age)-1, max(mtl$age) + 1, 5), right=T, main = 'Right closed distribution of Age', xlab='Age', col = 'blue')
+
+# Using integer bin borders with left closed intervals
+
+hist(mtl$age, breaks=seq(min(mtl$age)-1, max(mtl$age) + 1, 5), right=F, main = 'Left closed distribution of Age', xlab='Age', col = 'green') 
 ```
 
 
 c)  Adjust parameters--the same for both--so that the right open and right closed versions become identical. Explain your strategy. 
 
 ```{r}
-hist(mtl$age, breaks=seq(min(mtl$age) - 0.5, max(mtl$age) + 0.5, 5), right=T, main = 'Right closed distribution of Age')
-hist(mtl$age, breaks=seq(min(mtl$age) - 0.5, max(mtl$age) + 0.5, 5), right=F, main = 'Left closed distribution of Age')
+
+# Using float bin borders with right closed intervals
+hist(mtl$age, breaks=seq(min(mtl$age) - 0.5, max(mtl$age) + 0.5, 5), right=T, main = 'Right closed distribution of Age', col = 'blue', xlab='Age')
+
+# Using float bin borders with left closed intervals
+hist(mtl$age, breaks=seq(min(mtl$age) - 0.5, max(mtl$age) + 0.5, 5), right=F, main = 'Left closed distribution of Age', col = 'green', xlab='Age')
 ```
 
-Strategy - The idea is to change the breakpoints of the histogram to include non integer values such that classifying any integer point will be unambiguous. By specifying the breaks parameter in the hist function to start from a decimal will ensure the boundaries of the bins to be non integers and hence every distribution (right closed or left closed) will be identical. An easy choice is to start off in between an integer, such as 40.5 for instance.
+#### Strategy 
+
+The idea is to change the breakpoints of the histogram to include non integer values such that classifying any integer point will be unambiguous. By specifying the breaks parameter in the hist function to start from a decimal will ensure the boundaries of the bins to be non integers and hence every distribution (right closed or left closed) will be identical. An easy choice is to start off in between an integer, such as 40.5 for instance.
 
 ### 3. Soybeans
 
@@ -156,7 +176,7 @@ par(mfrow=c(2,2), las=1, mar=c(3,3,2,2))
   
 for(loc in sort(unique(agridat::australia.soybean$loc))){
   qqnorm(y = agridat::australia.soybean[agridat::australia.soybean$loc==loc,]$yield,
-         main=paste("Norm Q-Q Plot for",loc), xlab="", ylab="")
+         main=paste("Norm Q-Q Plot for", loc), xlab="", ylab="")
   qqline(y = agridat::australia.soybean[agridat::australia.soybean$loc==loc,]$yield, col="red")
   }
 
@@ -164,11 +184,11 @@ for(loc in sort(unique(agridat::australia.soybean$loc))){
 
 #### Observations
 
-* As these norm Q-Q plots for different locations indicate, the "yield" for Brookstead and Lawes are appeared to be more closest to a normal distribution compared with others since their data distribution are more concentrated across the straight line.
+* As these norm Q-Q plots for different locations indicate the "yield", Brookstead and Lawes are appeared to be more closest to a normal distribution compared with others since their data distribution are more concentrated across the straight line.
 * For both Brookstead and Lawes, data are spread out equally on the straight line at the central percentiles. But there are more deviations in the upper and lower tails for the Brookstead.
 * So Lawes distribution is the closest to the normal distribution.
 * For Nambour and RedlandBay, the deviation in the upper and lower tail is higher than the other two locations.
-* Moreover, for the distribution of yield in RedlandBay, there is a right skew since both upper and lower tails for it are at the upper side of the straight line.
+* Moreover, for the distribution of yield in RedlandBay, there is a right skew since both upper and lower tails for it are shifted towards the upper side of the straight line.
 
 
 b)  Draw density histograms with density curves and theoretical normal curves overlaid of `yield` for the four locations.
@@ -201,6 +221,17 @@ The statistical significance which is denoted by the p-value is greater than 0.0
 
 d)  Did all of the methods for testing for normality (a, b, and c) produce the same results? Briefly explain.
 
+#### Explanation
+
+The first two methods of QQ plots and density histograms with density curves combined with theoretical norm values in the plots are qualitative methods of normality whereas Shapiro's test for normality is quantitative. Visually, the results from both QQ plots and density curves match with the following results,
+
+  - Lawes and Brookstead - normally distributed
+  - Nambour and RedlandBay - deviate from normal distribution
+  
+The last method of Shapiro's inference normality test also gives the same results as above, indicated by the p-values > 0.05 for Lawes and Brookstead thus giving confidence in the null hypothesis of Lawes and Brookstead both following normal distribution. However, Nambour and RedlandBay received a p-value < 0.05 leading to rejecting the null hypothesis that these two follow a normal distribution.
+
+Thus, the results from all three methods - qualitative and quantitative, have given the same results for normality of distribution of these 4 different locations.
+
 
 ### 4. Doctors
 
@@ -208,7 +239,7 @@ d)  Did all of the methods for testing for normality (a, b, and c) produce the s
 
 Data: *breslow* dataset in **boot** package
 
-Draw two histograms of the number of deaths attributed to coronary artery disease among doctors in the *breslow* dataset, one for smokers and one for non-smokers. )Hint: read the help file `?breslow` to understand the data.)
+Draw two histograms of the age of deaths attributed to coronary artery disease among doctors in the *breslow* dataset, one for smokers and one for non-smokers. )Hint: read the help file `?breslow` to understand the data.)
 
 ```{r}
 
@@ -216,15 +247,15 @@ Draw two histograms of the number of deaths attributed to coronary artery diseas
 
 ggplot(boot::breslow[breslow$smoke=="1",], aes(x=age, y=y)) + 
   geom_histogram(fill = "red",stat="identity") + 
-  ylab("# of Death") + xlab("age")+
-  ggtitle("number of deaths attributed to coronary artery disease among doctors for smokers")
+  xlab("age")+
+  ggtitle("Number of deaths due to coronary artery disease (smoker doctors)")
 
 # non-smokers
 
 ggplot(boot::breslow[breslow$smoke=="0",], aes(x=age, y=y)) + 
   geom_histogram(fill = "blue",stat="identity") + 
-  ylab("# of Death") + xlab("age")+
-  ggtitle("number of deaths attributed to coronary artery disease among doctors for non-smokers")
+  xlab("age")+
+  ggtitle("Number of deaths due to coronary artery disease (non-smoker doctors)")
 
 ```
 
@@ -239,11 +270,18 @@ a) Use appropriate techniques to describe the distribution of the `loan_amount` 
 ```{r}
 
 ggplot(openintro::loans_full_schema, aes(loan_amount)) + 
-  geom_histogram(aes(y=..density..), bins=20,fill = "blue") + 
+  geom_histogram(aes(y=..density..), bins=20, fill = "blue") + 
   geom_density(color="red", adjust=2, size = 2)+
-  ylab("") +xlab("loan amount")
+  ylab("") +xlab("loan amount") +
+  ggtitle('Distribution of loan amount')
 
 ```
+
+#### Interesting features
+
+* The distribution of loan amount is right skewed which is not surprising as we expect to find lesser number of people opting for huge loan amounts.
+* The frequency density plot is unimodal with a peak at x=10000 indicating that the density of people taking ~$10000 loan amount is high.
+
 
 b) Create horizontal boxplots of `loan_amount`, one for each level of `loan_purpose`.
 
@@ -252,7 +290,7 @@ b) Create horizontal boxplots of `loan_amount`, one for each level of `loan_purp
 ggplot(openintro::loans_full_schema, aes(x=reorder(loan_purpose, loan_amount, median),y = loan_amount)) + 
   geom_boxplot(orientation = "x")+ 
   xlab("loan purpose")+ylab("loan amount")+
-  ggtitle("boxplots for loan amount amoung loan purpose")+
+  ggtitle("Boxplots for loan amount against loan purpose")+
   coord_flip()
 
 ```
@@ -266,13 +304,15 @@ ggplot(openintro::loans_full_schema, aes(x =loan_amount , y = loan_purpose)) +
   theme_bw() + 
   theme(legend.position = "none")+
   ylab("loan amount")+ xlab("loan purpose")+
-  ggtitle("ridgeline plots for loan amount amoung loan purpose")
+  ggtitle("Ridgeline plots for loan amount against loan purpose")
 
 ```
 
 d)  Compare b) and c). Which do you think is more effective for this data and why?
 
-Comparing these two graphs, boxplot is more effective for the given data. 
-Both ridgeline and boxplot can show the distribution skew of the data, however, boxplot can show more than skew. 
-Boxplot gives a five number summary and indicates metrics such as the IQR, min and max value of loan amount as numeric values, which allowed the comparison between different loan purpose. Moreover, boxplot also indicates the outliers for each distribution. 
-Therefore, boxplot is a better choice for this data.
+#### Comparison 
+
+* Comparing these two graphs, boxplot is more effective for the given data.
+* Both ridgeline and boxplot can show the distribution skew of the data, however, boxplot can show more than skew. 
+* Boxplot gives a five number summary and indicates metrics such as the IQR, min and max value of loan amount as numeric values, which allowed the comparison between different loan purpose. Moreover, boxplot also indicates the outliers for each distribution. 
+* Therefore, boxplot is a better choice for this data.
