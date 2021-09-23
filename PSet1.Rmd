@@ -315,6 +315,21 @@ d)  Compare b) and c). Which do you think is more effective for this data and wh
 #### Comparison 
 
 * Comparing these two graphs, boxplot is more effective for the given data.
+
+1) Information obtained from the plots
+
 * Both ridgeline and boxplot can show the distribution skew of the data, however, boxplot can show more than skew. 
 * Boxplot gives a five number summary and indicates metrics such as the IQR, min and max value of loan amount as numeric values, which allowed the comparison between different loan purpose. Moreover, boxplot also indicates the outliers for each distribution. 
-* Therefore, boxplot is a better choice for this data.
+
+2) Ease of plotting - boxplot vs ridgeline plots
+
+* One of the important parameters for ridgeline plots is choosing the parameter of alpha or kernel. This affects the level of smoothing the plots take up. If the values are too large then we can lose out on information. If its too high, then there will be a lot of jitter in the plots making it hard to read. The choice of this value also depends on the dataset. 
+* Whereas boxplots don't have such a parameter to be set. It is more intuitive as they are wholly based on the summary statistics of the data. Therefore, it offers less confusion and is data agnostic.
+
+3) Readability and space occupancy
+
+* Ridgeline plots often look cluttered as the number of categories increase. Sometimes, this may also lead to overlap of the distributions which can be deceptive and less readable. In order to avoid overlap, it requires sufficient space between the adjacent plots which sometimes increases the space required for the visualization.
+* Boxplots are fairly equally sized and placing them one below the other doesn't run into the risk of overlap and loss of information. For the same number of loan categories, box plot visualizations occupy less display space than the corresponding non overlapping ridgeline plot. 
+
+Final remarks - Therefore, boxplot is a better choice for this data.
+
