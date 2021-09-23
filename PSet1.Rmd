@@ -38,7 +38,7 @@ a)  Draw multiple horizontal boxplots of `calories`, by `restaurant`. What do yo
 
 ```{r}
 
-ggplot(fastfood, aes(x = restaurant, y = calories)) + 
+ggplot(fastfood, aes(x = reorder(restaurant, calories, median), y = calories)) + 
   geom_boxplot(orientation = "x", outlier.color = "red", outlier.size = 1.75)+
   coord_flip() +
   ggtitle('Boxplot of calories across various restaurants')
@@ -119,17 +119,17 @@ By default, inside of hist a two-stage process will decide the break points used
 
 1) The function nclass.Sturges receives the data and returns a recommended number of bars for the histogram. Sturges' formula is " based on the number of values, as ceiling(log2(length(x)) + 1). 
 
-  - Calc: In the given dataset, x = 35 as there are 35 observations.                 Therefore, ceiling(log2(35) + 1) = ceiling(6.129) = 6
+  - Calc: In the given dataset, x = 35 as there are 35 observations. Therefore, ceiling(log2(35) + 1) = ceiling(6.129) = 6
 
-2) Then the data and the recommended number of bars gets passed to a function called pretty (usually pretty.default which is implemented in C), which computes a sequence of about n+1 equally spaced round values which cover the range of the values in x. The values are chosen so that they are 1, 2 or 5 times a power of 10. 
+2) Then the data and the recommended number of bars gets passed to a function called pretty (usually pretty.default which is implemented in C), which computes a sequence of about n+1 equally spaced round values which cover the range of the values in x.  
 
-  - Calc: Implementation of pretty function is abstracted from the user.             But we know the split is chosen such that the they are 1, 2 or 5           times the power of 10. Base R boxplot shows bin width of size 5.           The value 6 from the above calculation is closest to 5*pow(10, 0)           = 5. Hence we can assume that the pretty function of R                     implemented in C has chosen to multiply 5 with 0th power of 10             and we get a bin width of size 5.
+  - Calc: Implementation of pretty function is non trivial and abstracted from the user. The calculated value of number of bins from step 1 is 6. But actual observed number of bins from the graph is 9. This deviation could be due to the operations in the pretty function.
 
 ##### Default calculation of number of bins in ggplot2
 
 The default value set for the number of bins in ggplot2 is 30 irrespective of the data range.
 
-###### Inference
+##### Inference
 
 For the dataset under observation, the age is distributed over a range of 40 to 80 approximately which is a pretty small number. It is important to take into account the range of the dataset as default bin size of 30 will be too granular and defeats the purpose of a histogram. Therefore, the base R calculation of binsize is more suitable for our case as it takes into account the range of our dataset and finds the optimal bin size by nearly equally distributing the bins over the range.
 
@@ -258,6 +258,8 @@ ggplot(boot::breslow[breslow$smoke=="0",], aes(x=age, y=y)) +
   ggtitle("Number of deaths due to coronary artery disease (non-smoker doctors)")
 
 ```
+
+NOTE: Attempted to create a vector containing all the raw values with the corresponding frequency to plot a histogram using geom_histogram with stats as default bins. Couldn't complete it due to time constraints.
 
 ### 5. Loans
 
